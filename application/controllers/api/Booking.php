@@ -46,22 +46,38 @@ class Booking extends Login{
         $addres=$dataUser->addres;
         $duration=$array_length.'  Day';
         
-        $this->ModelBooking->insertBooking($id_user, $no_book, $id_card, $name, $phone, $addres, $duration, $start_date, $end_date, $total_price, $token);
+//        $this->ModelBooking->insertBooking($id_user, $no_book, $id_card, $name, $phone, $addres, $duration, $start_date, $end_date, $total_price, $token);
         $databooking= $this->ModelBooking->getDetailBooking("WHERE token='".$token."'","*");
         $id_booking=$databooking->id_booking;
         for($i=0;$i<$array_length;$i++){
            $id_voucer= $this->post('id_voucer_'.$i,TRUE);
-           $price= $this->ModelVoucher->getDetailVoucer_travel("WHERE id_voucer='".$id_voucer."'","price")->price; 
-           $this->ModelBooking->insertDetailBooking($id_booking,$id_voucer,$price,$token);
+           $dataHotel=$this->ModelVoucher->getDetailVoucer_travel("WHERE id_voucer='".$id_voucer."'","id_hotel,price,id_room_type");
+           $price= $dataHotel->price; 
+           $id_hotel=$dataHotel->id_hotel;
+           $id_room_type=$dataHotel->id_room_type;
+//           $this->ModelBooking->insertDetailBooking($id_booking,$id_voucer,$price,$token);
        }
-       $data['no_booking']=$databooking->no_book;
-       $data['name']=$databooking->name;
-       $data['no_ktp']=$databooking->id_card;
-       $data['addres']=$databooking->addres;
-       $data['phone']=$databooking->phone;
-       $data['total_price']=$databooking->total_price;
-       $data['id_voucerlast']=$id_voucer;
-        $this->response($data, 200);
+       $data['data_customer']['no_ktp']=$databooking->id_card;
+       $data['data_customer']['name']=$databooking->name;
+       $data['data_customer']['addres']=$databooking->addres;
+       $data['data_customer']['phone']=$databooking->phone;
+       
+       $this->load->model('ModelHotel');
+       $this->load->model('ModelRoom_type');
+       $this->load->model('modelBank');
+       $name_type= $this->ModelRoom_type->getDetailroom_type("WHERE id_room_type='".$id_room_type."'","name_type")->name_type;
+       $dataHotel=$this->ModelHotel->getDetailHotel("WHERE id_hotel='".$id_hotel."'",'hotel_name,address,phone');
+       $data['data_booking']['no_booking']=$databooking->no_book;
+       $data['data_booking']['hotel_name']= $dataHotel->hotel_name;
+       $data['data_booking']['address']= $dataHotel->address;
+       $data['data_booking']['phone']= $dataHotel->phone;
+       $data['data_booking']['Room_type']=$name_type;
+       $data['data_booking']['start_date']=$start_date;
+       $data['data_booking']['end_date']=$end_date;
+       $data['data_booking']['duration']=$duration;
+       $data['data_booking']['total_price']=$databooking->total_price;
+       $data['info_payment']= $this->modelBank->getListBank('',"bank_name,no_acc")->result();
+       $this->response($data, 200);
          
         
         
