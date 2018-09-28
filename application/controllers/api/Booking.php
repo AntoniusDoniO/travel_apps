@@ -24,7 +24,7 @@ class Booking extends Login{
     function index_post() {
         $this->load->model('ModelBooking');
         $id_user=$this->post('id_user', TRUE);
-        
+//        $id_hotel= $this->post('id-hotel',TRUE);
         $array_length= $this->post('array_length',TRUE);
         $start_date= $this->post('start_date',TRUE);
         $end_date= $this->post('end_date',TRUE);
@@ -60,7 +60,7 @@ class Booking extends Login{
        $data['addres']=$databooking->addres;
        $data['phone']=$databooking->phone;
        $data['total_price']=$databooking->total_price;
-      
+       $data['id_voucerlast']=$id_voucer;
         $this->response($data, 200);
          
         
